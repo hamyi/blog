@@ -1,4 +1,3 @@
-blog
-====
-test
 hamyi blog
+====
+

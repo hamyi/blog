@@ -41,35 +41,91 @@
         <h3>
 <a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+1.设置play应用的某些属性
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+  1. 如：应用id，应用启动状态=false，根目录
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+2.加载play所有的静态资源
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+  1. 通过配置play.static可以提前加载一些class字节码，没用过，慎用！
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+3.寻找、设置play框架的文件路径
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+  1. 通过play.class.Resource（万能的resource可以找到你想要的任何文件）获取play版本文件
+  2. 获取play.jar包的文件路径，最后找到play框架的目录，如D:/lwh/playfromwork
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+4.读取play应用的配置文件
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+  1. 读取application.conf
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+  * 对文件进行检查（正则表达式匹配处理）
+  * key的命名是否需要符合要求
+  * ${}符号处理
+  * @include处理
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
+     2.  读取插件配置（貌似没干什么事）
+
+5.初始化play存放应用class的对象 ApplicationClasses
+
+6.配置应用的日志信息（日志级别，存放路径等）
+
+  1. 先加载应用根目录在.xml文件的日志配置
+  2. 如果第一步找不到xml文件，加载.properties文件，设置 PropertyConfigurator.configure(log4jConf);
+  3. 设置logger为"play", 日志级别（日志级别只有在非手动配置时才生效）
+  4. 测试模式的日志记录在test-result/application.log目录
+
+7.验证及建立临时目录rootpath/tmp
+
+8.设置应用的启动模式，DEV or PROD
+
+9.设置上下文路径
+
+10.建立应用的classpath app,conf,views,routs(并初始化play模块的routs对象（用一个map来存储）)
+
+11.加载play模块
+
+  1. 根据环境变量设置添加module模块，检查环境变量"MODULES"
+  2. 根据application.conf 的modulu配置添加module模块
+  3. 根据path/module 目录来加载（这个目录的生成是根据dependencies.yml的配置来生成的）
+  4. 加载一些特殊的模块，如测试环境下用户测试的模块，开发环境下的文档模块
+
+12.加载play框架自己的模板文件（frameworkPath/framework/templates）默认是一些"欢迎"，"测试"页面
+
+13.初始化play应用的classloader
+
+14.设置域名为默认cookie(可在application.conf配置是否启用application.defaultCookieDomain)
+
+15.加载play插件
+
+  1. 在classpath下寻找play.plugin的配置文件，一个或多个（play框架自带插件，文档插件，其他自定义插件）
+  2. 将插件及优先级信息全部加载到一个集合，然后按优先级排序，
+  3. 利用play的classloader根据插件类名实例化插件，增加到pluginlist（分为allplugins,enabledplugins,只读插件列表等）中。
+  4. 初始化每个插件时，首先执行onload方法
+  5. 更新插件列表
+
+16.初始化完成，如果是生成环境模式，预编译成功后，执行start方法
+         生产模式下：强制编译源码和模板
+         编译过程：
+
+  1. 先检查插件中是否需要编译源码
+  2. 加载javapath下的所有源码
+  3. 对这些类进行编译，调用org.eclipse.jdt包进行编译
+  4. 加载class字节码文件
+
+         启动过程：
+
+  1. 添加应用异常退出的线程钩子
+  2. 重新加载应用配置，日志配置，多语言配置
+  3. 清除模板缓存
+  4. 加载字节码文件
+  5. 路由配置，生产模式下，修改路由配置需要重启，代码里做了检查
+  6. 缓存系统初始化
+  7. 启动插件系统 onApplicationStart，afterApplicationStart
+
+17.插件执行 onApplicationRead()方法
+
+18.设置初始化状态为true
 
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->

@@ -31,8 +31,7 @@
 
       <section>
         <div id="title">
-          <h1>Blog</h1>
-          <p>hamyi blog</p>
+          <h1>playframwork1.2.4启动初始化过程</h1>
           <hr>
           <span class="credits left">Project maintained by <a href="https://github.com/hamyi">hamyi</a></span>
           <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
@@ -41,19 +40,28 @@
         <h3>
 <a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
 
-1.设置play应用的某些属性
+<p>1.设置play应用的某些属性
 
   1. 如：应用id，应用启动状态=false，根目录
+</p>
 
+<p>
 2.加载play所有的静态资源
 
   1. 通过配置play.static可以提前加载一些class字节码，没用过，慎用！
+
+</p>
+
+<p>
 
 3.寻找、设置play框架的文件路径
 
   1. 通过play.class.Resource（万能的resource可以找到你想要的任何文件）获取play版本文件
   2. 获取play.jar包的文件路径，最后找到play框架的目录，如D:/lwh/playfromwork
 
+</p>
+
+<p>
 4.读取play应用的配置文件
 
   1. 读取application.conf
@@ -66,36 +74,50 @@
 
      2.  读取插件配置（貌似没干什么事）
 
-5.初始化play存放应用class的对象 ApplicationClasses
+</p>
 
+<p>
+5.初始化play存放应用class的对象 ApplicationClasses
+</p>
+
+<p>
 6.配置应用的日志信息（日志级别，存放路径等）
 
   1. 先加载应用根目录在.xml文件的日志配置
   2. 如果第一步找不到xml文件，加载.properties文件，设置 PropertyConfigurator.configure(log4jConf);
   3. 设置logger为"play", 日志级别（日志级别只有在非手动配置时才生效）
   4. 测试模式的日志记录在test-result/application.log目录
-
+</p>
+<p>
 7.验证及建立临时目录rootpath/tmp
-
+</p>
+<p>
 8.设置应用的启动模式，DEV or PROD
-
+</p>
+<p>
 9.设置上下文路径
-
+</p>
+<p>
 10.建立应用的classpath app,conf,views,routs(并初始化play模块的routs对象（用一个map来存储）)
-
+</p>
+<p>
 11.加载play模块
 
   1. 根据环境变量设置添加module模块，检查环境变量"MODULES"
   2. 根据application.conf 的modulu配置添加module模块
   3. 根据path/module 目录来加载（这个目录的生成是根据dependencies.yml的配置来生成的）
   4. 加载一些特殊的模块，如测试环境下用户测试的模块，开发环境下的文档模块
-
+</p>
+<p>
 12.加载play框架自己的模板文件（frameworkPath/framework/templates）默认是一些"欢迎"，"测试"页面
-
+</p>
+<p>
 13.初始化play应用的classloader
-
+</p>
+<p>
 14.设置域名为默认cookie(可在application.conf配置是否启用application.defaultCookieDomain)
-
+</p>
+<p>
 15.加载play插件
 
   1. 在classpath下寻找play.plugin的配置文件，一个或多个（play框架自带插件，文档插件，其他自定义插件）
@@ -103,7 +125,8 @@
   3. 利用play的classloader根据插件类名实例化插件，增加到pluginlist（分为allplugins,enabledplugins,只读插件列表等）中。
   4. 初始化每个插件时，首先执行onload方法
   5. 更新插件列表
-
+</p>
+<p>
 16.初始化完成，如果是生成环境模式，预编译成功后，执行start方法
          生产模式下：强制编译源码和模板
          编译过程：
@@ -122,11 +145,14 @@
   5. 路由配置，生产模式下，修改路由配置需要重启，代码里做了检查
   6. 缓存系统初始化
   7. 启动插件系统 onApplicationStart，afterApplicationStart
-
+</p>
+<p>
 17.插件执行 onApplicationRead()方法
+</p>
 
+<p>
 18.设置初始化状态为true
-
+</p>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     <script type="text/javascript">
